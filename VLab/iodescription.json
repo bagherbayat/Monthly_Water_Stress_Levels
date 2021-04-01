@@ -39,23 +39,23 @@
   ],
   "outputs": [
     {
-      "id": "Water_Stress_Maps_jpg.zip",
+      "id": "Water_Stress_Levels_jpg.zip",
       "outputType": "individual",
       "valueType": "value",
       "description": "Maps of water stress levels (in jpg format) archived in a zip file",
-      "name": "Water Stress (EDI Values) Maps [jpg]",
+      "name": "Water Stress Levels Maps [jpg]",
       "valueSchema": "url",
-      "target": "Water_Stress_Maps_jpg.zip"
+      "target": "Water_Stress_Levels_jpg.zip"
  },
     
         {
-      "id": "Water_Stress_Maps_GTiff.zip",
+      "id": "Water_Stress_Levels_GTiff.zip",
       "outputType": "individual",
       "valueType": "value",
       "description": "Maps of water stress levels (in GTiff format) archived in a zip file",
-      "name": "Water Stress (EDI Values) Maps [GTiff]",
+      "name": "Water Stress Levels Maps [GTiff]",
       "valueSchema": "url",
-      "target": "Water_Stress_Maps_GTiff.zip"
+      "target": "Water_Stress_Levels_GTiff.zip"
  },
   
     {
@@ -63,7 +63,7 @@
       "outputType": "individual",
       "valueType": "value",
       "description": "Text reports (tables) containing water stress levels (in CSV format) based on the percentage of the total land area archived in a zip file",
-      "name": "Water Stress (EDI Values) Reports [CSV]",
+      "name": "Water Stress Levels Reports [CSV]",
       "valueSchema": "url",
       "target": "Water_Stress_Reports_CSV.zip"
  }
