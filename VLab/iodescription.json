@@ -39,33 +39,33 @@
   ],
   "outputs": [
     {
-      "id": "Water_Stress_Levels_jpg.zip",
+      "id": "EU_Monthly_WaterStress_Maps.zip",
       "outputType": "individual",
       "valueType": "value",
       "description": "Maps of water stress levels (in jpg format) archived in a zip file",
       "name": "Water Stress Levels Maps [jpg]",
       "valueSchema": "url",
-      "target": "Water_Stress_Levels_jpg.zip"
+      "target": "EU_Monthly_WaterStress_Maps.zip"
  },
     
         {
-      "id": "Water_Stress_Levels_GTiff.zip",
+      "id": "EU_Monthly_WaterStress_Rasters.zip",
       "outputType": "individual",
       "valueType": "value",
       "description": "Maps of water stress levels (in GTiff format) archived in a zip file",
       "name": "Water Stress Levels Maps [GTiff]",
       "valueSchema": "url",
-      "target": "Water_Stress_Levels_GTiff.zip"
+      "target": "EU_Monthly_WaterStress_Rasters.zip"
  },
   
     {
-      "id": "Water_Stress_Reports_CSV.zip",
+      "id": "EU_Monthly_WaterStress_Reports.zip",
       "outputType": "individual",
       "valueType": "value",
       "description": "Text reports (tables) containing water stress levels (in CSV format) based on the percentage of the total land area per country archived in a zip file",
       "name": "Water Stress Levels Reports [CSV]",
       "valueSchema": "url",
-      "target": "Water_Stress_Reports_CSV.zip"
+      "target": "EU_Monthly_WaterStress_Reports.zip"
  }
 
   ]
