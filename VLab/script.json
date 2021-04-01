@@ -6,8 +6,8 @@
       "pathType": "FILE"
  },
     {
-      "repoPath": "EDI_Values_Workflow_VLab.R",
-      "targetPath": "EDI_Values_Workflow_VLab.R",
+      "repoPath": "Monthly_Water_Stress_Levels_VLab.R",
+      "targetPath": "Monthly_Water_Stress_Levels_VLab.R",
       "pathType": "FILE"
  }
   ]
