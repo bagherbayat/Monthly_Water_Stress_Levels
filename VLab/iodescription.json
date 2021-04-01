@@ -1,0 +1,72 @@
+{
+  "inputs": [
+    {
+      "id": "DataObject_1",
+      "inputType": "array",
+      "valueType": "value",
+      "description": "This is actual ET (ETa) data set",
+      "name": "ETa data set",
+      "obligation": true,
+      "hasDefault": false,
+      "valueSchema": "url",
+      "target": "ETa/"
+ },
+ 
+   {
+      "id": "DataObject_2",
+      "inputType": "array",
+      "valueType": "value",
+      "description": "This is reference ET (ET0) data set",
+      "name": "ET0 data set",
+      "obligation": true,
+      "hasDefault": false,
+      "valueSchema": "url",
+      "target": "ET0/"
+ },
+
+    {
+      "id": "DataObject_3",
+      "inputType": "individual",
+      "valueType": "value",
+      "description": "This is border shapefile",
+      "name": "Border shapefile",
+      "obligation": true,
+      "hasDefault": false,
+      "valueSchema": "url",
+      "target": "SHP/data.zip"
+ }
+ 
+  ],
+  "outputs": [
+    {
+      "id": "Water_Stress_Maps_jpg.zip",
+      "outputType": "individual",
+      "valueType": "value",
+      "description": "Maps of water stress levels (in jpg format) archived in a zip file",
+      "name": "Water Stress (EDI Values) Maps [jpg]",
+      "valueSchema": "url",
+      "target": "Water_Stress_Maps_jpg.zip"
+ },
+    
+        {
+      "id": "Water_Stress_Maps_GTiff.zip",
+      "outputType": "individual",
+      "valueType": "value",
+      "description": "Maps of water stress levels (in GTiff format) archived in a zip file",
+      "name": "Water Stress (EDI Values) Maps [GTiff]",
+      "valueSchema": "url",
+      "target": "Water_Stress_Maps_GTiff.zip"
+ },
+  
+    {
+      "id": "Water_Stress_Reports_CSV.zip",
+      "outputType": "individual",
+      "valueType": "value",
+      "description": "Text reports (tables) containing water stress levels (in CSV format) based on the percentage of the total land area archived in a zip file",
+      "name": "Water Stress (EDI Values) Reports [CSV]",
+      "valueSchema": "url",
+      "target": "Water_Stress_Reports_CSV.zip"
+ }
+
+  ]
+}

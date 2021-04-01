@@ -1,0 +1,14 @@
+{
+  "scripts": [
+    {
+      "repoPath": "run.sh",
+      "targetPath": "run.sh",
+      "pathType": "FILE"
+ },
+    {
+      "repoPath": "EDI_Values_Workflow_VLab.R",
+      "targetPath": "EDI_Values_Workflow_VLab.R",
+      "pathType": "FILE"
+ }
+  ]
+}
