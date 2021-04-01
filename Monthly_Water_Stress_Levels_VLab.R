@@ -33,16 +33,17 @@
   library(prettymapr)
   library(zip)
   
-  ## 2. Set Working directory
+  ## 2. Set Working directory and unzipping the input data
   dir <- "./"
   setwd(dir)
   
-  ### Processing ET0
-  ## 3. Read daily ET0 data, define geostatinary project, reproject to GCS, scale and save them as daily tif files 
-  unzip("ETa.zip", exdir = dir)
-  unzip("ET0.zip", exdir = dir)
+  unzip("ETa_HDF.zip", exdir = dir)
+  unzip("ET0_HDF.zip", exdir = dir)
   unzip("EU_Border.zip", exdir = dir)
   
+  ### Processing ET0
+  ## 3. Read daily ET0 data, define geostatinary project, reproject to GCS, scale and save them as daily tif files 
+
   sdir1 <- "./ET0_HDF/"
   list.filenames_ET0 <- list.files(path = sdir1, pattern = "METREF")
   list.data_ET0 <- list()
