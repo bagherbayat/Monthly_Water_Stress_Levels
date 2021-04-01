@@ -62,7 +62,7 @@
       "id": "Water_Stress_Reports_CSV.zip",
       "outputType": "individual",
       "valueType": "value",
-      "description": "Text reports (tables) containing water stress levels (in CSV format) based on the percentage of the total land area archived in a zip file",
+      "description": "Text reports (tables) containing water stress levels (in CSV format) based on the percentage of the total land area per country archived in a zip file",
       "name": "Water Stress Levels Reports [CSV]",
       "valueSchema": "url",
       "target": "Water_Stress_Reports_CSV.zip"
