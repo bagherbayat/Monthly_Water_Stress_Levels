@@ -9,7 +9,7 @@
       "obligation": true,
       "hasDefault": false,
       "valueSchema": "url",
-      "target": "ETa/"
+      "target": "ETa.zip"
  },
  
    {
@@ -21,7 +21,7 @@
       "obligation": true,
       "hasDefault": false,
       "valueSchema": "url",
-      "target": "ET0/"
+      "target": "ET0.zip"
  },
 
     {
@@ -33,7 +33,7 @@
       "obligation": true,
       "hasDefault": false,
       "valueSchema": "url",
-      "target": "SHP/data.zip"
+      "target": "EU_Border.zip"
  }
  
   ],
