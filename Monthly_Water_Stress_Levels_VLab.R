@@ -37,10 +37,10 @@
   dir <- "./"
   setwd(dir)
   
+  unzip("EU_Border.zip", exdir = dir)
   unzip("ETa_HDF.zip", exdir = dir)
   unzip("ET0_HDF.zip", exdir = dir)
-  unzip("EU_Border.zip", exdir = dir)
-  
+
   ### Processing ET0
   ## 3. Read daily ET0 data, define geostatinary project, reproject to GCS, scale and save them as daily tif files 
 
