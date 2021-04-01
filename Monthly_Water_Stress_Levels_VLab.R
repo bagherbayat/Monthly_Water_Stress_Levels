@@ -38,13 +38,13 @@
   setwd(dir)
   
   unzip("EU_Border.zip", exdir = dir)
-  unzip("ETa_HDF.zip", exdir = dir)
-  unzip("ET0_HDF.zip", exdir = dir)
+  unzip("ETa.zip", exdir = dir)
+  unzip("ET0.zip", exdir = dir)
 
   ### Processing ET0
   ## 3. Read daily ET0 data, define geostatinary project, reproject to GCS, scale and save them as daily tif files 
 
-  sdir1 <- "./ET0_HDF/"
+  sdir1 <- "./ET0/"
   list.filenames_ET0 <- list.files(path = sdir1, pattern = "METREF")
   list.data_ET0 <- list()
   
@@ -96,7 +96,7 @@
   unlink(paste(dir, files, sep = ""))
   
   #Back to data subdir
-  sdir1 <- "./ET0_HDF/"
+  sdir1 <- "./ET0/"
   }
   
   ## 4. Calculate monthly (mean) ET0
@@ -170,8 +170,8 @@
   
   ### Processing ETa
   ## 5. Read daily ETa data, define geostatinary project, reproject to GCS, scale and save them as daily tif files
-  #unzip("ETa_HDF.zip", exdir = dir)
-  sdir4 <- "./ETa_HDF/"
+  #unzip("ETa.zip", exdir = dir)
+  sdir4 <- "./ETa/"
   
   ## Read  ETa data part 1 (to read from Euro region)
   list.filenames_ETa_Euro <- list.files(path = sdir4, pattern = "Euro")  
@@ -228,13 +228,13 @@
   unlink(paste(dir, files, sep = ""))
   
   #Back to data subdir
-  sdir4 <- "./ETa_HDF/"
+  sdir4 <- "./ETa/"
   
   }
   rm(list = ls())    #clear all objects in the environment.
   
   ## Read  ETa data part 2 (to read from Disk region)
-  sdir4 <- "./ETa_HDF/"
+  sdir4 <- "./ETa/"
   list.filenames_ETa_Disk <- list.files(path = sdir4, pattern = "Disk")
   list.data_ETa_Disk <- list()
   
@@ -288,7 +288,7 @@
   unlink(paste(dir, files, sep = ""))
   
   #Back to data subdir
-  sdir4 <- "./ETa_HDF/"
+  sdir4 <- "./ETa/"
   
   }
   rm(list = ls())    #clear all objects in the environment.
