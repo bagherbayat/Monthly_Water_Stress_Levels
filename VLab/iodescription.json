@@ -9,7 +9,7 @@
       "obligation": true,
       "hasDefault": false,
       "valueSchema": "url",
-      "target": "ETa_HDF.zip"
+      "target": "ETa.zip"
  },
  
    {
@@ -21,7 +21,7 @@
       "obligation": true,
       "hasDefault": false,
       "valueSchema": "url",
-      "target": "ET0_HDF.zip"
+      "target": "ET0.zip"
  },
 
     {
