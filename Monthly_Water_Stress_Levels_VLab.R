@@ -58,10 +58,22 @@
   ))
   
   
+  # # Reprojecting the ET0 data element (METREF) of HDF files
+  # system(
+  #   paste(
+  #     'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -5568000 5568000 5568000 -5568000 HDF5:',
+  #     sdir1,
+  #     list.filenames_ET0[[i]],
+  #     '://METREF temp_METREF.tif',
+  #     sep = ""
+  #   )
+  # )
+  
+  
   # Reprojecting the ET0 data element (METREF) of HDF files
   system(
     paste(
-      'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -5568000 5568000 5568000 -5568000 HDF5:',
+      'gdal_translate -co COMPRESS=LZW -co BIGTIFF=YES -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -5568000 5568000 5568000 -5568000 HDF5:',
       sdir1,
       list.filenames_ET0[[i]],
       '://METREF temp_METREF.tif',
