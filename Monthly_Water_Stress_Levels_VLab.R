@@ -58,29 +58,19 @@
   ))
   
   
-  # # Reprojecting the ET0 data element (METREF) of HDF files
-  # system(
-  #   paste(
-  #     'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -5568000 5568000 5568000 -5568000 HDF5:',
-  #     sdir1,
-  #     list.filenames_ET0[[i]],
-  #     '://METREF temp_METREF.tif',
-  #     sep = ""
-  #   )
-  # )
+   # Reprojecting the ET0 data element (METREF) of HDF files
+   system(
+     paste(
+       'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -5568000 5568000 5568000 -5568000 HDF5:',
+       sdir1,
+       list.filenames_ET0[[i]],
+       '://METREF temp_METREF.tif',
+       sep = ""
+     )
+   )
   
   
-  # Reprojecting the ET0 data element (METREF) of HDF files
-  system(
-    paste(
-      'gdal_translate -co COMPRESS=LZW -co BIGTIFF=YES -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -5568000 5568000 5568000 -5568000 HDF5:',
-      sdir1,
-      list.filenames_ET0[[i]],
-      '://METREF temp_METREF.tif',
-      sep = ""
-    )
-  )
-  
+
   system(
     paste(
       'gdalwarp -t_srs EPSG:4326 -te -10 33 34 73 -tr 0.04 0.04 -r bilinear -wo SOURCE_EXTRA=100 -overwrite temp_METREF.tif METREF.tif',
@@ -107,6 +97,10 @@
   files <- list.files(path = dir, pattern = "METREF")
   unlink(paste(dir, files, sep = ""))
   
+  # Removing list.data_ET0 from the workspace and making an empty list
+  rm(list.data_ET0)
+  list.data_ET0 <- list()
+    
   #Back to data subdir
   sdir1 <- "./ET0_HDF/"
   }
