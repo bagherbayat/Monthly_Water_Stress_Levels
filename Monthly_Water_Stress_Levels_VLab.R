@@ -177,72 +177,72 @@ unzip("ET0.zip", exdir = dir)
 ### Processing ETa
 ## 5. Read daily ETa data, define geostatinary project, reproject to GCS, scale and save them as daily tif files
 #unzip("ETa.zip", exdir = dir)
-sdir4 <- "./ETa_HDF/"
+#sdir4 <- "./ETa_HDF/"
 
-## Read  ETa data part 1 (to read from Euro region)
-list.filenames_ETa_Euro <- list.files(path = sdir4, pattern = "Euro")  
-list.data_ETa_Euro <- list()
-
-for (i in 1:length(list.filenames_ETa_Euro))
-  
-{
-  print(paste(
-    "Step 2: Processing Euro region ETa data set",
-    i,
-    "of",
-    length(list.filenames_ETa_Euro)
-  ))
-  
-  # Reprojecting the ETa data element (ET) of HDF files
-  system(
-    paste(
-      'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -922623.5 5417891 4178899 3469966 HDF5:',
-      sdir4,
-      list.filenames_ETa_Euro[[i]],
-      '://ET temp_DMET.tif',
-      sep = ""
-    )
-  )
-  
-  system(
-    paste(
-      'gdalwarp -t_srs EPSG:4326 -te -10 33 34 73 -tr 0.04 0.04 -r bilinear -wo SOURCE_EXTRA=100 -overwrite temp_DMET.tif DMET.tif',
-      sep = ""
-    )
-  )
-  
-  
-  # Read Reprojected file and apply the scaling
-  setwd(dir)
-  list.data_ETa_Euro[[i]] <- raster(paste(dir, "/DMET.tif", sep = ""))
-  list.data_ETa_Euro[[i]] <-
-    list.data_ETa_Euro[[i]] / 1000           #scaling
-  list.data_ETa_Euro[[i]][list.data_ETa_Euro[[i]] < 0] <- NA
-  names(list.data_ETa_Euro[[i]]) <-
-    list.filenames_ETa_Euro[[i]] #add the names of data to the list
-  
-  # Make a new subdir and save reprojected and scalled ETa data in tif format
-  dir.create(file.path("DailyETa_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
-  sdir5 <- "./DailyETa_tif/"
-  file_tif <-  paste(sdir5, list.filenames_ETa_Euro[i], '.tif', sep = "")
-  writeRaster(list.data_ETa_Euro[[i]], file = file_tif,format = "GTiff", overwrite = TRUE)
-  
-  # Removing previous temp_DMET and DMET
-  # dir <- "./"
-  setwd(dir)
-  files <- list.files(path = dir, pattern = "DMET")
-  unlink(paste(dir, files, sep = ""))
-  
-  # Removing list.data_ETa_Euro from the workspace and making an empty list
-  rm(list.data_ETa_Euro)
-  list.data_ETa_Euro <- list()
-  
-  
-  #Back to data subdir
-  sdir4 <- "./ETa_HDF/"
-  
-}
-rm(list = ls())    #clear all objects in the environment.
+# ## Read  ETa data part 1 (to read from Euro region)
+# list.filenames_ETa_Euro <- list.files(path = sdir4, pattern = "Euro")  
+# list.data_ETa_Euro <- list()
+# 
+# for (i in 1:length(list.filenames_ETa_Euro))
+#   
+# {
+#   print(paste(
+#     "Step 2: Processing Euro region ETa data set",
+#     i,
+#     "of",
+#     length(list.filenames_ETa_Euro)
+#   ))
+#   
+#   # Reprojecting the ETa data element (ET) of HDF files
+#   system(
+#     paste(
+#       'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -922623.5 5417891 4178899 3469966 HDF5:',
+#       sdir4,
+#       list.filenames_ETa_Euro[[i]],
+#       '://ET temp_DMET.tif',
+#       sep = ""
+#     )
+#   )
+#   
+#   system(
+#     paste(
+#       'gdalwarp -t_srs EPSG:4326 -te -10 33 34 73 -tr 0.04 0.04 -r bilinear -wo SOURCE_EXTRA=100 -overwrite temp_DMET.tif DMET.tif',
+#       sep = ""
+#     )
+#   )
+#   
+#   
+#   # Read Reprojected file and apply the scaling
+#   setwd(dir)
+#   list.data_ETa_Euro[[i]] <- raster(paste(dir, "/DMET.tif", sep = ""))
+#   list.data_ETa_Euro[[i]] <-
+#     list.data_ETa_Euro[[i]] / 1000           #scaling
+#   list.data_ETa_Euro[[i]][list.data_ETa_Euro[[i]] < 0] <- NA
+#   names(list.data_ETa_Euro[[i]]) <-
+#     list.filenames_ETa_Euro[[i]] #add the names of data to the list
+#   
+#   # Make a new subdir and save reprojected and scalled ETa data in tif format
+#   dir.create(file.path("DailyETa_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
+#   sdir5 <- "./DailyETa_tif/"
+#   file_tif <-  paste(sdir5, list.filenames_ETa_Euro[i], '.tif', sep = "")
+#   writeRaster(list.data_ETa_Euro[[i]], file = file_tif,format = "GTiff", overwrite = TRUE)
+#   
+#   # Removing previous temp_DMET and DMET
+#   # dir <- "./"
+#   setwd(dir)
+#   files <- list.files(path = dir, pattern = "DMET")
+#   unlink(paste(dir, files, sep = ""))
+#   
+#   # Removing list.data_ETa_Euro from the workspace and making an empty list
+#   rm(list.data_ETa_Euro)
+#   list.data_ETa_Euro <- list()
+#   
+#   
+#   #Back to data subdir
+#   sdir4 <- "./ETa_HDF/"
+#   
+# }
+# ##rm(list = ls())    #clear all objects in the environment.
 
 ## Read  ETa data part 2 (to read from Disk region)
 sdir4 <- "./ETa_HDF/"
