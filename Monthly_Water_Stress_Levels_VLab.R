@@ -41,208 +41,208 @@ unzip("EU_Border.zip", exdir = dir)
 unzip("ETa.zip", exdir = dir)
 unzip("ET0.zip", exdir = dir)
 # 
-# ### Processing ET0
-# ## 3. Read daily ET0 data, define geostatinary project, reproject to GCS, scale and save them as daily tif files 
-# 
-# sdir1 <- "./ET0_HDF/"
-# list.filenames_ET0 <- list.files(path = sdir1, pattern = "METREF")
-# list.data_ET0 <- list()
-# 
-# for (i in 1:length(list.filenames_ET0))
-# {
-#   print(paste(
-#     "Step 1: Processing ET0 data set",
-#     i,
-#     "of",
-#     length(list.filenames_ET0)
-#   ))
-#   
-#   
-#   # Reprojecting the ET0 data element (METREF) of HDF files
-#   system(
-#     paste(
-#       'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -5568000 5568000 5568000 -5568000 HDF5:',
-#       sdir1,
-#       list.filenames_ET0[[i]],
-#       '://METREF temp_METREF.tif',
-#       sep = ""
-#     )
-#   )
-#   
-#   
-#   
-#   system(
-#     paste(
-#       'gdalwarp -t_srs EPSG:4326 -te -10 33 34 73 -tr 0.04 0.04 -r bilinear -wo SOURCE_EXTRA=100 -overwrite temp_METREF.tif METREF.tif',
-#       sep = ""
-#     )
-#   )
-#   
-#   # Read Reprojected file and apply the scaling
-#   setwd(dir)
-#   list.data_ET0[[i]] <- raster(paste(dir, "/METREF.tif", sep = ""))
-#   list.data_ET0[[i]] <- list.data_ET0[[i]] / 100           #scaling
-#   list.data_ET0[[i]][list.data_ET0[[i]] < 0] <- NA
-#   names(list.data_ET0[[i]]) <-
-#     list.filenames_ET0[[i]] #add the names of the data to the list 
-#   
-#   # Make a new subdir and save reprojected and scalled ET0 data in tif format
-#   dir.create(file.path("DailyET0_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
-#   sdir2 <- "./DailyET0_tif/"
-#   file_tif <-  paste(sdir2, list.filenames_ET0[i], '.tif', sep = "")
-#   writeRaster(list.data_ET0[[i]], file = file_tif,format = "GTiff", overwrite = TRUE)
-#   
-#   # Removing previous temp_METREF and METREF
-#   setwd(dir)
-#   files <- list.files(path = dir, pattern = "METREF")
-#   unlink(paste(dir, files, sep = ""))
-#   
-#   # Removing list.data_ET0 from the workspace and making an empty list
-#   rm(list.data_ET0)
-#   list.data_ET0 <- list()
-#   
-#   #Back to data subdir
-#   sdir1 <- "./ET0_HDF/"
-# }
-# 
-# ## 4. Calculate monthly (mean) ET0
-# sdir2 <- "./DailyET0_tif/"
-# 
-# list.filenames_ET0 <- list.files(path = sdir2, pattern = "Disk")
-# 
-# dataFrame <- data.frame(FileName = list.filenames_ET0 , year = NA, month = NA, day = NA) ##data frame to store file names and correspnding year, month, and day
-# for(i in 1:length(list.filenames_ET0)) ### start of files for loop in each directory 
-# {
-#   # Read date from the file name 
-#   sp1 <- strsplit(list.filenames_ET0[i],"_")[[1]] ### splilt file name like  "HDF5"             "LSASAF"           "MSG"              "METREF"           "MSG-Disk"         "201101200000.tif" from the file name "HDF5_LSASAF_MSG_METREF_MSG-Disk_201101200000.tif"
-#   
-#   sp2 <-  sp1[length(sp1)] #### save "200401200000.tif" to another variable
-#   
-#   # Read year, month, and day from sp2, and save as numeric 
-#   yr <- as.numeric(substr(x=sp2,start=1,stop=4))  ### output 2011
-#   mm <- as.numeric(substr(x=sp2,start=5,stop=6))  ### output 01
-#   dd <- as.numeric(substr(x=sp2,start=7,stop=8))### output 20
-#   
-#   dataFrame$year[i] <- yr
-#   dataFrame$month[i] <- mm
-#   dataFrame$day[i] <- dd
-#   
-# }
-# 
-# 
-# #### Read avilable years of the data files
-# yearAvl <- unique(dataFrame$year)  #### output "2011 2012 ... 2020"
-# 
-# #### check avilable months in each year and assign to another variable created in loop, e.g., mm_2011, mm_2012,.....
-# for(j in 1:length(yearAvl))
-# {
-#   temp_file <- dataFrame[which(dataFrame$year == yearAvl[j]),]
-#   assign(paste0("mm_", yearAvl[j]), unique(temp_file$month) )
-# }  
-# 
-# ########## Read data files year wise and mean calculation on the data files of each month
-# for(k in 1:length(yearAvl))
-# {
-#   temp_file <- dataFrame[which(dataFrame$year == yearAvl[k]),]
-#   temp_mm <-  eval(parse(text = paste0("mm_", yearAvl[k])))
-#   for(m in temp_mm)
-#   {
-#     temp_file_mm <- temp_file[which(temp_file$month == m),]
-#     
-#     ## stacking all data of a month together
-#     FileName <- paste(sdir2,temp_file_mm$FileName, sep ="")
-#     temp_file_together_mm <- lapply(FileName, raster)   
-#     
-#     temp_file_stack_mm <- stack(temp_file_together_mm)
-#     
-#     ### monthly mean
-#     monthly_mean <- calc(temp_file_stack_mm, fun = mean,na.rm=T)
-#     
-#     
-#     # Make a new subdir and save mean ET0 data in tif format
-#     dir.create(file.path("MonthlyET0_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
-#     sdir3 <- "./MonthlyET0_tif/"
-#     
-#     file_tif <-  paste(sdir3, "Mean_month_",m,"_","year","_",yearAvl[k], '.tif', sep = "")
-#     writeRaster(monthly_mean, file = file_tif,format = "GTiff", overwrite = TRUE)
-#     
-#     
-#   }
-#   
-# }      
-# 
-# rm(list = ls())    #clear all objects in the environment.
-# 
+## Processing ET0
+# 3. Read daily ET0 data, define geostatinary project, reproject to GCS, scale and save them as daily tif files
 
-### Processing ETa
-## 5. Read daily ETa data, define geostatinary project, reproject to GCS, scale and save them as daily tif files
-#unzip("ETa.zip", exdir = dir)
-#sdir4 <- "./ETa_HDF/"
+sdir1 <- "./ET0_HDF/"
+list.filenames_ET0 <- list.files(path = sdir1, pattern = "METREF")
+list.data_ET0 <- list()
 
-# ## Read  ETa data part 1 (to read from Euro region)
-# list.filenames_ETa_Euro <- list.files(path = sdir4, pattern = "Euro")  
-# list.data_ETa_Euro <- list()
-# 
-# for (i in 1:length(list.filenames_ETa_Euro))
-#   
-# {
-#   print(paste(
-#     "Step 2: Processing Euro region ETa data set",
-#     i,
-#     "of",
-#     length(list.filenames_ETa_Euro)
-#   ))
-#   
-#   # Reprojecting the ETa data element (ET) of HDF files
-#   system(
-#     paste(
-#       'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -922623.5 5417891 4178899 3469966 HDF5:',
-#       sdir4,
-#       list.filenames_ETa_Euro[[i]],
-#       '://ET temp_DMET.tif',
-#       sep = ""
-#     )
-#   )
-#   
-#   system(
-#     paste(
-#       'gdalwarp -t_srs EPSG:4326 -te -10 33 34 73 -tr 0.04 0.04 -r bilinear -wo SOURCE_EXTRA=100 -overwrite temp_DMET.tif DMET.tif',
-#       sep = ""
-#     )
-#   )
-#   
-#   
-#   # Read Reprojected file and apply the scaling
-#   setwd(dir)
-#   list.data_ETa_Euro[[i]] <- raster(paste(dir, "/DMET.tif", sep = ""))
-#   list.data_ETa_Euro[[i]] <-
-#     list.data_ETa_Euro[[i]] / 1000           #scaling
-#   list.data_ETa_Euro[[i]][list.data_ETa_Euro[[i]] < 0] <- NA
-#   names(list.data_ETa_Euro[[i]]) <-
-#     list.filenames_ETa_Euro[[i]] #add the names of data to the list
-#   
-#   # Make a new subdir and save reprojected and scalled ETa data in tif format
-#   dir.create(file.path("DailyETa_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
-#   sdir5 <- "./DailyETa_tif/"
-#   file_tif <-  paste(sdir5, list.filenames_ETa_Euro[i], '.tif', sep = "")
-#   writeRaster(list.data_ETa_Euro[[i]], file = file_tif,format = "GTiff", overwrite = TRUE)
-#   
-#   # Removing previous temp_DMET and DMET
-#   # dir <- "./"
-#   setwd(dir)
-#   files <- list.files(path = dir, pattern = "DMET")
-#   unlink(paste(dir, files, sep = ""))
-#   
-#   # Removing list.data_ETa_Euro from the workspace and making an empty list
-#   rm(list.data_ETa_Euro)
-#   list.data_ETa_Euro <- list()
-#   
-#   
-#   #Back to data subdir
-#   sdir4 <- "./ETa_HDF/"
-#   
-# }
-# ##rm(list = ls())    #clear all objects in the environment.
+for (i in 1:length(list.filenames_ET0))
+{
+  print(paste(
+    "Step 1: Processing ET0 data set",
+    i,
+    "of",
+    length(list.filenames_ET0)
+  ))
+
+
+  # Reprojecting the ET0 data element (METREF) of HDF files
+  system(
+    paste(
+      'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -5568000 5568000 5568000 -5568000 HDF5:',
+      sdir1,
+      list.filenames_ET0[[i]],
+      '://METREF temp_METREF.tif',
+      sep = ""
+    )
+  )
+
+
+
+  system(
+    paste(
+      'gdalwarp -t_srs EPSG:4326 -te -10 33 34 73 -tr 0.04 0.04 -r bilinear -wo SOURCE_EXTRA=100 -overwrite temp_METREF.tif METREF.tif',
+      sep = ""
+    )
+  )
+
+  # Read Reprojected file and apply the scaling
+  setwd(dir)
+  list.data_ET0[[i]] <- raster(paste(dir, "/METREF.tif", sep = ""))
+  list.data_ET0[[i]] <- list.data_ET0[[i]] / 100           #scaling
+  list.data_ET0[[i]][list.data_ET0[[i]] < 0] <- NA
+  names(list.data_ET0[[i]]) <-
+    list.filenames_ET0[[i]] #add the names of the data to the list
+
+  # Make a new subdir and save reprojected and scalled ET0 data in tif format
+  dir.create(file.path("DailyET0_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
+  sdir2 <- "./DailyET0_tif/"
+  file_tif <-  paste(sdir2, list.filenames_ET0[i], '.tif', sep = "")
+  writeRaster(list.data_ET0[[i]], file = file_tif,format = "GTiff", overwrite = TRUE)
+
+  # Removing previous temp_METREF and METREF
+  setwd(dir)
+  files <- list.files(path = dir, pattern = "METREF")
+  unlink(paste(dir, files, sep = ""))
+
+  # Removing list.data_ET0 from the workspace and making an empty list
+  rm(list.data_ET0)
+  list.data_ET0 <- list()
+
+  #Back to data subdir
+  sdir1 <- "./ET0_HDF/"
+}
+
+## 4. Calculate monthly (mean) ET0
+sdir2 <- "./DailyET0_tif/"
+
+list.filenames_ET0 <- list.files(path = sdir2, pattern = "Disk")
+
+dataFrame <- data.frame(FileName = list.filenames_ET0 , year = NA, month = NA, day = NA) ##data frame to store file names and correspnding year, month, and day
+for(i in 1:length(list.filenames_ET0)) ### start of files for loop in each directory
+{
+  # Read date from the file name
+  sp1 <- strsplit(list.filenames_ET0[i],"_")[[1]] ### splilt file name like  "HDF5"             "LSASAF"           "MSG"              "METREF"           "MSG-Disk"         "201101200000.tif" from the file name "HDF5_LSASAF_MSG_METREF_MSG-Disk_201101200000.tif"
+
+  sp2 <-  sp1[length(sp1)] #### save "200401200000.tif" to another variable
+
+  # Read year, month, and day from sp2, and save as numeric
+  yr <- as.numeric(substr(x=sp2,start=1,stop=4))  ### output 2011
+  mm <- as.numeric(substr(x=sp2,start=5,stop=6))  ### output 01
+  dd <- as.numeric(substr(x=sp2,start=7,stop=8))### output 20
+
+  dataFrame$year[i] <- yr
+  dataFrame$month[i] <- mm
+  dataFrame$day[i] <- dd
+
+}
+
+
+#### Read avilable years of the data files
+yearAvl <- unique(dataFrame$year)  #### output "2011 2012 ... 2020"
+
+#### check avilable months in each year and assign to another variable created in loop, e.g., mm_2011, mm_2012,.....
+for(j in 1:length(yearAvl))
+{
+  temp_file <- dataFrame[which(dataFrame$year == yearAvl[j]),]
+  assign(paste0("mm_", yearAvl[j]), unique(temp_file$month) )
+}
+
+########## Read data files year wise and mean calculation on the data files of each month
+for(k in 1:length(yearAvl))
+{
+  temp_file <- dataFrame[which(dataFrame$year == yearAvl[k]),]
+  temp_mm <-  eval(parse(text = paste0("mm_", yearAvl[k])))
+  for(m in temp_mm)
+  {
+    temp_file_mm <- temp_file[which(temp_file$month == m),]
+
+    ## stacking all data of a month together
+    FileName <- paste(sdir2,temp_file_mm$FileName, sep ="")
+    temp_file_together_mm <- lapply(FileName, raster)
+
+    temp_file_stack_mm <- stack(temp_file_together_mm)
+
+    ### monthly mean
+    monthly_mean <- calc(temp_file_stack_mm, fun = mean,na.rm=T)
+
+
+    # Make a new subdir and save mean ET0 data in tif format
+    dir.create(file.path("MonthlyET0_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
+    sdir3 <- "./MonthlyET0_tif/"
+
+    file_tif <-  paste(sdir3, "Mean_month_",m,"_","year","_",yearAvl[k], '.tif', sep = "")
+    writeRaster(monthly_mean, file = file_tif,format = "GTiff", overwrite = TRUE)
+
+
+  }
+
+}
+
+##rm(list = ls())    #clear all objects in the environment.
+
+
+## Processing ETa
+# 5. Read daily ETa data, define geostatinary project, reproject to GCS, scale and save them as daily tif files
+unzip("ETa.zip", exdir = dir)
+sdir4 <- "./ETa_HDF/"
+
+## Read  ETa data part 1 (to read from Euro region)
+list.filenames_ETa_Euro <- list.files(path = sdir4, pattern = "Euro")  
+list.data_ETa_Euro <- list()
+
+for (i in 1:length(list.filenames_ETa_Euro))
+  
+{
+  print(paste(
+    "Step 2: Processing Euro region ETa data set",
+    i,
+    "of",
+    length(list.filenames_ETa_Euro)
+  ))
+  
+  # Reprojecting the ETa data element (ET) of HDF files
+  system(
+    paste(
+      'gdal_translate -a_srs "+proj=geos +h=35785831 +a=6378169 +b=6356583.8 +no_defs" -a_ullr -922623.5 5417891 4178899 3469966 HDF5:',
+      sdir4,
+      list.filenames_ETa_Euro[[i]],
+      '://ET temp_DMET.tif',
+      sep = ""
+    )
+  )
+  
+  system(
+    paste(
+      'gdalwarp -t_srs EPSG:4326 -te -10 33 34 73 -tr 0.04 0.04 -r bilinear -wo SOURCE_EXTRA=100 -overwrite temp_DMET.tif DMET.tif',
+      sep = ""
+    )
+  )
+  
+  
+  # Read Reprojected file and apply the scaling
+  setwd(dir)
+  list.data_ETa_Euro[[i]] <- raster(paste(dir, "/DMET.tif", sep = ""))
+  list.data_ETa_Euro[[i]] <-
+    list.data_ETa_Euro[[i]] / 1000           #scaling
+  list.data_ETa_Euro[[i]][list.data_ETa_Euro[[i]] < 0] <- NA
+  names(list.data_ETa_Euro[[i]]) <-
+    list.filenames_ETa_Euro[[i]] #add the names of data to the list
+  
+  # Make a new subdir and save reprojected and scalled ETa data in tif format
+  dir.create(file.path("DailyETa_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
+  sdir5 <- "./DailyETa_tif/"
+  file_tif <-  paste(sdir5, list.filenames_ETa_Euro[i], '.tif', sep = "")
+  writeRaster(list.data_ETa_Euro[[i]], file = file_tif,format = "GTiff", overwrite = TRUE)
+  
+  # Removing previous temp_DMET and DMET
+  # dir <- "./"
+  setwd(dir)
+  files <- list.files(path = dir, pattern = "DMET")
+  unlink(paste(dir, files, sep = ""))
+  
+  # Removing list.data_ETa_Euro from the workspace and making an empty list
+  rm(list.data_ETa_Euro)
+  list.data_ETa_Euro <- list()
+  
+  
+  #Back to data subdir
+  sdir4 <- "./ETa_HDF/"
+  
+}
+##rm(list = ls())    #clear all objects in the environment.
 
 ## Read  ETa data part 2 (to read from Disk region)
 sdir4 <- "./ETa_HDF/"
@@ -307,7 +307,7 @@ for (i in 1:length(list.filenames_ETa_Disk))
   sdir4 <- "./ETa_HDF/"
   
 }
-rm(list = ls())    #clear all objects in the environment.
+##rm(list = ls())    #clear all objects in the environment.
 
 
 ## 6. Calculate monthly (mean) ETa
@@ -377,7 +377,7 @@ for(k in 1:length(yearAvl))
   
 }      
 
-rm(list = ls())    #clear all objects in the environment.
+##rm(list = ls())    #clear all objects in the environment.
 
 ## 7. Compute monthly Evaporative Stress Index (ESI)
 sdir6 <- "./MonthlyETa_tif/"
