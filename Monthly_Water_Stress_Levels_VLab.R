@@ -1,12 +1,14 @@
+
 ### Monthly Water Stress Levels:
 #This workflow quantifies one decade of (agricultural) water stress levels across Europe using satellite-derived Evapotranspiration (ET) data sets and Evaporative Stress Index (ESI) anomalies.
 
 ##Authors: Bagher Bayat (b.bayat@fz-juelich.de and bagher.bayat@gmail.com), Carsten Montzka (c.montzka@fz-juelich.de), Harry Vereecken (h.vereecken@fz-juelich.de) 
 #Institute of Bio- and Geosciences: Agrosphere (IBG-3), Forschungszentrum Jülich GmbH, 52425 Jülich, Germany
 #Date:  10 March 2020, Updated: 1 April 2021
+
 ## Main inputs:
 #1. Time series of actual evapotranspiration (ETa) data set at daily step [mm] derived from the Spinning Enhanced Visible and Infrared Imager (SEVIRI) sensor onboard the Meteosat Second Generation (MSG) satellites
-#2. Time series of reference evapotranspiration (ET0) data set at daily step [mm] derived from the Spinning Enhanced Visible and Infrared Imager (SEVIRI) sensor onboard the Meteosat Second Generation (MSG) satellites
+#2. Time series of reference evapotranspiration (ET0) data set at daily step [mm] derived from SEVIRI sensor onboard the MSG satellites
 #3. Study area border as a (polygon) shapefile
 
 ## Main outputs:
@@ -15,7 +17,7 @@
 #3. Text reports (tables) containing water stress levels (in CSV format) based on the percentage of the total land area archived in a zip file
 
 ## Extent:
-#European Union (include 34 countries)
+#European Union (including 34 countries)
 #Spatial resolution: 4 km
 #Temporal resolution: Monthly 
 
@@ -33,14 +35,14 @@ library(raster)
 library(prettymapr)
 library(zip)
 
-## 2. Set Working directory and unzipping the input data
+## 2. Set Working directory and unzipping the input data files
 dir <- "./"
 setwd(dir)
 
 unzip("EU_Border.zip", exdir = dir)
 unzip("ETa.zip", exdir = dir)
 unzip("ET0.zip", exdir = dir)
-# 
+
 ## Processing ET0
 # 3. Read daily ET0 data, define geostatinary project, reproject to GCS, scale and save them as daily tif files
 
@@ -56,8 +58,8 @@ for (i in 1:length(list.filenames_ET0))
     "of",
     length(list.filenames_ET0)
   ))
-
-
+  
+  
   # Reprojecting the ET0 data element (METREF) of HDF files
   system(
     paste(
@@ -68,16 +70,15 @@ for (i in 1:length(list.filenames_ET0))
       sep = ""
     )
   )
-
-
-
+  
+  
   system(
     paste(
       'gdalwarp -t_srs EPSG:4326 -te -10 33 34 73 -tr 0.04 0.04 -r bilinear -wo SOURCE_EXTRA=100 -overwrite temp_METREF.tif METREF.tif',
       sep = ""
     )
   )
-
+  
   # Read Reprojected file and apply the scaling
   setwd(dir)
   list.data_ET0[[i]] <- raster(paste(dir, "/METREF.tif", sep = ""))
@@ -85,22 +86,22 @@ for (i in 1:length(list.filenames_ET0))
   list.data_ET0[[i]][list.data_ET0[[i]] < 0] <- NA
   names(list.data_ET0[[i]]) <-
     list.filenames_ET0[[i]] #add the names of the data to the list
-
+  
   # Make a new subdir and save reprojected and scalled ET0 data in tif format
   dir.create(file.path("DailyET0_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
   sdir2 <- "./DailyET0_tif/"
   file_tif <-  paste(sdir2, list.filenames_ET0[i], '.tif', sep = "")
   writeRaster(list.data_ET0[[i]], file = file_tif,format = "GTiff", overwrite = TRUE)
-
+  
   # Removing previous temp_METREF and METREF
   setwd(dir)
   files <- list.files(path = dir, pattern = "METREF")
   unlink(paste(dir, files, sep = ""))
-
+  
   # Removing list.data_ET0 from the workspace and making an empty list
   rm(list.data_ET0)
   list.data_ET0 <- list()
-
+  
   #Back to data subdir
   sdir1 <- "./ET0_HDF/"
 }
@@ -115,18 +116,18 @@ for(i in 1:length(list.filenames_ET0)) ### start of files for loop in each direc
 {
   # Read date from the file name
   sp1 <- strsplit(list.filenames_ET0[i],"_")[[1]] ### splilt file name like  "HDF5"             "LSASAF"           "MSG"              "METREF"           "MSG-Disk"         "201101200000.tif" from the file name "HDF5_LSASAF_MSG_METREF_MSG-Disk_201101200000.tif"
-
+  
   sp2 <-  sp1[length(sp1)] #### save "200401200000.tif" to another variable
-
+  
   # Read year, month, and day from sp2, and save as numeric
   yr <- as.numeric(substr(x=sp2,start=1,stop=4))  ### output 2011
   mm <- as.numeric(substr(x=sp2,start=5,stop=6))  ### output 01
   dd <- as.numeric(substr(x=sp2,start=7,stop=8))### output 20
-
+  
   dataFrame$year[i] <- yr
   dataFrame$month[i] <- mm
   dataFrame$day[i] <- dd
-
+  
 }
 
 
@@ -148,31 +149,28 @@ for(k in 1:length(yearAvl))
   for(m in temp_mm)
   {
     temp_file_mm <- temp_file[which(temp_file$month == m),]
-
+    
     ## stacking all data of a month together
     FileName <- paste(sdir2,temp_file_mm$FileName, sep ="")
     temp_file_together_mm <- lapply(FileName, raster)
-
+    
     temp_file_stack_mm <- stack(temp_file_together_mm)
-
+    
     ### monthly mean
     monthly_mean <- calc(temp_file_stack_mm, fun = mean,na.rm=T)
-
-
+    
+    
     # Make a new subdir and save mean ET0 data in tif format
     dir.create(file.path("MonthlyET0_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
     sdir3 <- "./MonthlyET0_tif/"
-
+    
     file_tif <-  paste(sdir3, "Mean_month_",m,"_","year","_",yearAvl[k], '.tif', sep = "")
     writeRaster(monthly_mean, file = file_tif,format = "GTiff", overwrite = TRUE)
-
-
+    
+    
   }
-
+  
 }
-
-##rm(list = ls())    #clear all objects in the environment.
-
 
 ## Processing ETa
 # 5. Read daily ETa data, define geostatinary project, reproject to GCS, scale and save them as daily tif files
@@ -211,7 +209,6 @@ for (i in 1:length(list.filenames_ETa_Euro))
     )
   )
   
-  
   # Read Reprojected file and apply the scaling
   setwd(dir)
   list.data_ETa_Euro[[i]] <- raster(paste(dir, "/DMET.tif", sep = ""))
@@ -237,12 +234,10 @@ for (i in 1:length(list.filenames_ETa_Euro))
   rm(list.data_ETa_Euro)
   list.data_ETa_Euro <- list()
   
-  
   #Back to data subdir
   sdir4 <- "./ETa_HDF/"
   
 }
-##rm(list = ls())    #clear all objects in the environment.
 
 ## Read  ETa data part 2 (to read from Disk region)
 sdir4 <- "./ETa_HDF/"
@@ -269,7 +264,6 @@ for (i in 1:length(list.filenames_ETa_Disk))
     )
   )
   
-  # This gdalwarp system command should work for VLab
   system(
     paste(
       'gdalwarp -t_srs EPSG:4326 -te -10 33 34 73 -tr 0.04 0.04 -r bilinear -wo SOURCE_EXTRA=100 -overwrite temp_DMET.tif DMET.tif',
@@ -298,7 +292,6 @@ for (i in 1:length(list.filenames_ETa_Disk))
   files <- list.files(path = dir, pattern = "DMET")
   unlink(paste(dir, files, sep = ""))
   
-  
   # Removing list.data_ETa_Disk from the workspace and making an empty list
   rm(list.data_ETa_Disk)
   list.data_ETa_Disk <- list()
@@ -307,8 +300,6 @@ for (i in 1:length(list.filenames_ETa_Disk))
   sdir4 <- "./ETa_HDF/"
   
 }
-##rm(list = ls())    #clear all objects in the environment.
-
 
 ## 6. Calculate monthly (mean) ETa
 sdir5 <- "./DailyETa_tif/"
@@ -364,7 +355,6 @@ for(k in 1:length(yearAvl))
     ### monthly mean
     monthly_mean <- calc(temp_file_stack_mm, fun = mean,na.rm=T)
     
-    
     # Make a new subdir and save mean ET0 data in tif format
     dir.create(file.path("MonthlyETa_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
     sdir6 <- "./MonthlyETa_tif/"
@@ -376,8 +366,6 @@ for(k in 1:length(yearAvl))
   }
   
 }      
-
-##rm(list = ls())    #clear all objects in the environment.
 
 ## 7. Compute monthly Evaporative Stress Index (ESI)
 sdir6 <- "./MonthlyETa_tif/"
@@ -462,7 +450,6 @@ for(l in 1:12)
   All_years_mean <- calc(temp_file_stack_all, fun = mean,na.rm =T)
   All_years_sd <- calc(temp_file_stack_all, fun = sd,na.rm =T)
   
-  
   # Make a new subdir and save monthly normal ESI in tif format
   dir.create(file.path("MonthlyNormal_ESI_tif"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
   sdir8 <- "./MonthlyNormal_ESI_tif/"
@@ -522,7 +509,6 @@ FileName <- paste(sdir9,list.filenames_ESI_Anomaly, sep ="")
 list.data_ESI_Anomaly <- lapply(FileName, raster)
 
 #Reading EU shapefile for Masking the HDF data
-#unzip("EU_Border.zip", exdir = dir)
 sdir0 <- "./EU_Border/" #set working directory
 unzip(zipfile = "./EU_Border/data.zip", exdir = "./EU_Border/data")#unzipping the data folder
 file <- paste(sdir0, "/data/NUTS_RG_01M_2013_Update.shp", sep = "")
@@ -592,7 +578,7 @@ for (i in 1:length(list.data_ESI_Anomaly))
   list.data_ESI_Anomaly_reclass[[i]] <-
     reclassify(list.data_ESI_Anomaly_mask[[i]], reclass_m)
   
-  #Plot reclassified data
+  #Plot the reclassified data
   # Make a new subdir and save classified monthly ESI anomaly in jpg format
   dir.create(file.path("EU_Monthly_WaterStress_Maps"), showWarnings = FALSE,recursive = TRUE) 
   sdir10 <- "./EU_Monthly_WaterStress_Maps/"
@@ -809,7 +795,6 @@ for (i in 1:length(list.data_ESI_Anomaly))
     col.names = T,
     quote = F
   )
-  
   
   #Here is the individual monthly tif maps masked for EU 
   dir.create(file.path("EU_Monthly_WaterStress_Rasters"), showWarnings = FALSE,recursive = TRUE) #Creat a folder to save the tif files
